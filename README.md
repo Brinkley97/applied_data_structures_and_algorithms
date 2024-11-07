@@ -17,7 +17,26 @@ framework/
 ├── data_loader.py
 ├── data_plotter.py
 ├── data_structures.py
-└── neural_networks.py
+├── neural_networks.py
+└── examples/
+    ├── graphs/
+    │   ├── 01_directed_undirected_graphs.ipynb (in development)
+    │   ├── 02_graph_creation_from_dict.ipynb (in development)
+    │   ├── 03_graph_to_tree_conversion.ipynb (in development)
+    ├── trees/
+    │   ├── 01_binary_tree_basics.ipynb (in development)
+    │   ├── 02_avl_and_red_black_trees.ipynb (in development)
+    │   └── 03_tree_to_graph_conversion.ipynb (in development)
+    ├── heaps/
+    │   ├── 01_min_max_heap_basics.ipynb (in development)
+    ├── arrays_and_lists/
+    │   ├── 01_array_operations.ipynb (in development)
+    │   ├── 02_linked_list_operations.ipynb (in development)
+    │   └── 03_dynamic_arrays_and_vectors.ipynb (in development)
+    └── neural_networks_on_graphs/
+        ├── 01_gnn_basics.ipynb (in development)
+        ├── 02_node_classification_with_gnn.ipynb (in development)
+        └── 03_link_prediction.ipynb (in development)
 ```
 
 ### Modules
