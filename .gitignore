@@ -6,4 +6,4 @@
 /class/fall_22/venv/lib/python3.8/site-packages
 /class/fall_22/venv/bin
 /class/fall_22/venv
-.DS_Store
+*.pyc
