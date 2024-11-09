@@ -1,8 +1,9 @@
+import random
+
 class SeatBooking():
     def __init__(self):
         self.unassigned_seats = []
         self.users = {}
-        self.
         
     def initialize(self, seat_count):
         """Initialize the events with the specified number of seats, denoted as “seatCount”. The seat numbers will be sequentially assigned as [1, 2, 3, ..., seatCount] and added to the list of unassigned seats.
