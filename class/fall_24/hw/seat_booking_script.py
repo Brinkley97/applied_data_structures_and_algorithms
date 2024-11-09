@@ -1,4 +1,6 @@
-import random
+import heap_operations, visualizations
+
+seat_heap = heap_operations.SeatHeap()
 
 class SeatBooking():
     def __init__(self):
@@ -16,8 +18,15 @@ class SeatBooking():
             for seat_count_i in range(seat_count):
                 seat_count_i = seat_count_i + 1
                 self.unassigned_seats.append(seat_count_i)
-            
-            return self.unassigned_seats
+
+                # print(f"Before min_heapify")
+                # visualizations.visualize_binary_heap(self.unassigned_seats)
+
+                build_seat_heap = seat_heap.build_heap(self.unassigned_seats)
+                print(build_seat_heap)
+
+                # print(f"After min_heapify")
+                # visualizations.visualize_binary_heap(build_seat_heap)
         
         # If invalid integer is provided 
         #   Invalid input. Please provide a valid number of seats.
@@ -28,16 +37,22 @@ class SeatBooking():
         """Print the number of seats that are currently available for reservation and the length of the waitlist
         """
         # Total Seats Available : <available seat count>, Waitlist : <waitlist length> 
-        return f"Total Seats Available : {len(self.unassigned_seats)}, Waitlist : <waitlist length>"
+        # return f"Total Seats Available : {len(self.unassigned_seats)}, Waitlist : <waitlist length>"
+        return f"Total Seats Available : {seat_heap.network_size}, Waitlist : <waitlist length>"
 
     def reserve(self, user_id, user_priority):
         """Allow a user to reserve the seat that is available from the unassigned seat list and update the reserved seats tree. If no seats are currently available, create a new entry in the waitlist heap as per the user’s priority and timestamp. Print out the seat number if a seat is assigned. If the user is added to the waitlist, print out a message to the user stating that he is added to the waitlist. 
         """
         # If seat is available for reservation 
         #   User <userID> reserved seat <seatID> 
+        if seat_heap.network_size >= 1:
+            min_seat = seat_heap.extract_min()
+            print(f"User {user_id} reserved seat {min_seat}")
         
         # If the user is added to the waiting list
         #   User <userID> is added to the waiting list
+        else:
+            pass
 
     def cancel(seat_id, user_id):
         """Reassign the seat to user from the waitlist heap. If the waitlist is empty, delete the node and add it back to the available seats. 
