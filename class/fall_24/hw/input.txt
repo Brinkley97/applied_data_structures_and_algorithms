@@ -1,0 +1,3 @@
+# Parse line-by-line (split func in python) word as regex 
+Initialize() # split on '(' to get first word 
+# map word to function

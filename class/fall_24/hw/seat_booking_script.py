@@ -120,3 +120,9 @@ class SeatBooking():
 
     def quit():
         """Anything below this command in the input file will not be processed. The program terminates either when the quit command is read by the system or when it reaches the end of the input commands, which ever happens first."""
+
+
+# Red-Black tree is separate
+#   Connect to this main code; book ticket (call reserve) to call red black tree function
+# Binary Min-Heap tree is separate
+#   Connect to this main code waitlist
