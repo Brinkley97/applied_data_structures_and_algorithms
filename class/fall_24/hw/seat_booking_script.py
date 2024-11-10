@@ -1,8 +1,13 @@
+import heap_operations, tree_operations, visualizations
+
+seat_heap = heap_operations.SeatHeap()
+waitlist_heap = heap_operations.WaitlistHeap()
+rbt = tree_operations.RedBlackTree()
+
 class SeatBooking():
     def __init__(self):
         self.unassigned_seats = []
         self.users = {}
-        self.
         
     def initialize(self, seat_count):
         """Initialize the events with the specified number of seats, denoted as “seatCount”. The seat numbers will be sequentially assigned as [1, 2, 3, ..., seatCount] and added to the list of unassigned seats.
@@ -15,8 +20,15 @@ class SeatBooking():
             for seat_count_i in range(seat_count):
                 seat_count_i = seat_count_i + 1
                 self.unassigned_seats.append(seat_count_i)
-            
-            return self.unassigned_seats
+
+                # print(f"Before min_heapify")
+                # visualizations.visualize_binary_heap(self.unassigned_seats)
+
+                build_seat_heap = seat_heap.build_heap(self.unassigned_seats)
+                print(build_seat_heap)
+
+                # print(f"After min_heapify")
+                # visualizations.visualize_binary_heap(build_seat_heap)
         
         # If invalid integer is provided 
         #   Invalid input. Please provide a valid number of seats.
@@ -27,16 +39,25 @@ class SeatBooking():
         """Print the number of seats that are currently available for reservation and the length of the waitlist
         """
         # Total Seats Available : <available seat count>, Waitlist : <waitlist length> 
-        return f"Total Seats Available : {len(self.unassigned_seats)}, Waitlist : <waitlist length>"
+        # return f"Total Seats Available : {len(self.unassigned_seats)}, Waitlist : <waitlist length>"
+        return f"Total Seats Available : {seat_heap.network_size}, Waitlist : {waitlist_heap.network_size}"
 
     def reserve(self, user_id, user_priority):
         """Allow a user to reserve the seat that is available from the unassigned seat list and update the reserved seats tree. If no seats are currently available, create a new entry in the waitlist heap as per the user’s priority and timestamp. Print out the seat number if a seat is assigned. If the user is added to the waitlist, print out a message to the user stating that he is added to the waitlist. 
         """
         # If seat is available for reservation 
         #   User <userID> reserved seat <seatID> 
+        if seat_heap.network_size >= 1:
+            min_seat = seat_heap.extract_min()
+            print(f"User {user_id} reserved seat {min_seat}, thus updating Red-Black Tree with User {user_id} and Seat {min_seat}")
+            rbt.insert(user_id, min_seat)
+            print(f"    with root node color of {rbt.root.color}")
         
         # If the user is added to the waiting list
         #   User <userID> is added to the waiting list
+        else:
+            waitlist_heap.insert((user_priority, user_id))  # Insert based on priority and user ID as a tuple
+            print(f"User {user_id} is added to the waiting list")
 
     def cancel(seat_id, user_id):
         """Reassign the seat to user from the waitlist heap. If the waitlist is empty, delete the node and add it back to the available seats. 
@@ -120,3 +141,9 @@ class SeatBooking():
 
     def quit():
         """Anything below this command in the input file will not be processed. The program terminates either when the quit command is read by the system or when it reaches the end of the input commands, which ever happens first."""
+
+
+# Red-Black tree is separate
+#   Connect to this main code; book ticket (call reserve) to call red black tree function
+# Binary Min-Heap tree is separate
+#   Connect to this main code waitlist
