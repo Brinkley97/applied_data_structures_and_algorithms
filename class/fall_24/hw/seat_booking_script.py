@@ -1,6 +1,8 @@
-import heap_operations, visualizations
+import heap_operations, tree_operations, visualizations
 
 seat_heap = heap_operations.SeatHeap()
+waitlist_heap = heap_operations.WaitlistHeap()
+rbt = tree_operations.RedBlackTree()
 
 class SeatBooking():
     def __init__(self):
@@ -38,7 +40,7 @@ class SeatBooking():
         """
         # Total Seats Available : <available seat count>, Waitlist : <waitlist length> 
         # return f"Total Seats Available : {len(self.unassigned_seats)}, Waitlist : <waitlist length>"
-        return f"Total Seats Available : {seat_heap.network_size}, Waitlist : <waitlist length>"
+        return f"Total Seats Available : {seat_heap.network_size}, Waitlist : {waitlist_heap.network_size}"
 
     def reserve(self, user_id, user_priority):
         """Allow a user to reserve the seat that is available from the unassigned seat list and update the reserved seats tree. If no seats are currently available, create a new entry in the waitlist heap as per the user’s priority and timestamp. Print out the seat number if a seat is assigned. If the user is added to the waitlist, print out a message to the user stating that he is added to the waitlist. 
@@ -47,12 +49,15 @@ class SeatBooking():
         #   User <userID> reserved seat <seatID> 
         if seat_heap.network_size >= 1:
             min_seat = seat_heap.extract_min()
-            print(f"User {user_id} reserved seat {min_seat}")
+            print(f"User {user_id} reserved seat {min_seat}, thus updating Red-Black Tree with User {user_id} and Seat {min_seat}")
+            rbt.insert(user_id, min_seat)
+            print(f"    with root node color of {rbt.root.color}")
         
         # If the user is added to the waiting list
         #   User <userID> is added to the waiting list
         else:
-            pass
+            waitlist_heap.insert((user_priority, user_id))  # Insert based on priority and user ID as a tuple
+            print(f"User {user_id} is added to the waiting list")
 
     def cancel(seat_id, user_id):
         """Reassign the seat to user from the waitlist heap. If the waitlist is empty, delete the node and add it back to the available seats. 

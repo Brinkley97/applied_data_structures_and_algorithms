@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import math
 
 class HeapFactory(ABC):
     """To create heap objects and perform heap operations"""
@@ -7,18 +8,39 @@ class HeapFactory(ABC):
         self.network = []
         self.network_size = len(self.network)
 
-    # def get_root_node(i):
-    #     return 
+    def get_root_node(i):
+        return i // 2
+
+    
     def get_left_node(self, i):
         return 2 * i
 
     def get_right_node(self, i):
         return 2 * i + 1
 
-    # @abstractmethod
-    def insert(self):
-        pass
+    # # @abstractmethod
+    def insert(self, key):
+        """Insert a new key (priority, user_id) into the min-heap."""
+        # Increase network size for new insertion and append a placeholder
+        self.network_size += 1
+        self.network.append((float('inf'), None))  # Extend with a tuple placeholder
+        self.decrease_heap_key(self.network_size - 1, key)  # Use network_size - 1 for correct index
 
+    def decrease_heap_key(self, i, key):
+        """Decrease the key value at index i to the new key, maintaining the min-heap property."""
+        # Check if new key is valid for a min-heap
+        if key > self.network[i]:
+            raise ValueError("New key is larger than current key")
+        
+        # Set the key at the specified index
+        self.network[i] = key
+
+        # Bubble up to maintain the min-heap property
+        while i > 0 and self.network[(i - 1) // 2] > self.network[i]:
+            # Swap with the parent node
+            self.network[i], self.network[(i - 1) // 2] = self.network[(i - 1) // 2], self.network[i]
+            i = (i - 1) // 2
+         
     # @abstractmethod
     def extract_min(self):
         pass
@@ -88,5 +110,11 @@ class SeatHeap(HeapFactory):
 class WaitlistHeap(HeapFactory):
     """Store users in waitlist"""
 
-    def build_heap(self):
-        return super().build_heap()
+    def build_heap(self, waitlist_seats: list):
+        self.network = waitlist_seats
+        self.network_size = len(self.network)
+
+        for node in range((self.network_size // 2) - 1, -1, -1):
+            self.min_heapify(node)
+        
+        return self.network
