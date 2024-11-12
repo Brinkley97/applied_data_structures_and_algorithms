@@ -8,10 +8,9 @@ class HeapFactory(ABC):
         self.network = []
         self.network_size = len(self.network)
 
-    def get_root_node(i):
+    def get_root_node(self, i):
         return i // 2
 
-    
     def get_left_node(self, i):
         return 2 * i
 
@@ -21,25 +20,11 @@ class HeapFactory(ABC):
     # # @abstractmethod
     def insert(self, key):
         """Insert a new key (priority, user_id) into the min-heap."""
-        # Increase network size for new insertion and append a placeholder
-        self.network_size += 1
-        self.network.append((float('inf'), None))  # Extend with a tuple placeholder
-        self.decrease_heap_key(self.network_size - 1, key)  # Use network_size - 1 for correct index
+        pass
 
     def decrease_heap_key(self, i, key):
         """Decrease the key value at index i to the new key, maintaining the min-heap property."""
-        # Check if new key is valid for a min-heap
-        if key > self.network[i]:
-            raise ValueError("New key is larger than current key")
-        
-        # Set the key at the specified index
-        self.network[i] = key
-
-        # Bubble up to maintain the min-heap property
-        while i > 0 and self.network[(i - 1) // 2] > self.network[i]:
-            # Swap with the parent node
-            self.network[i], self.network[(i - 1) // 2] = self.network[(i - 1) // 2], self.network[i]
-            i = (i - 1) // 2
+        pass
          
     # @abstractmethod
     def extract_min(self):
@@ -52,6 +37,23 @@ class HeapFactory(ABC):
         O(n): For every element, we call min_heapify()
         """
         pass 
+
+    def search(self, key):
+        """Search for a key in the heap.
+        
+        Parameter:
+        ----------
+        key: `int` 
+            The value to search for in the heap.
+
+        Returns:
+        --------
+            Tuple of (index, True) if found, or (-1, False) if not found.
+        """
+        for i in range(self.network_size):
+            if self.network[i] == key:
+                return i, True
+        return -1, False
 
     # @abstractmethod
     def min_heapify(self, i: int):
@@ -106,6 +108,21 @@ class SeatHeap(HeapFactory):
         self.min_heapify(0)  # self.network = [2, 3, 4, 5]
 
         return min_node
+    
+    def insert(self, seat_id):
+        """Insert a new seat_id into the min-heap without priority."""
+        # Increase network size for new insertion
+        self.network_size += 1
+        # Append seat_id as a placeholder
+        self.network.append(seat_id)
+        i = self.network_size - 1
+        # Bubble up to maintain min-heap property
+        while i > 0 and self.network[self.get_root_node(i)] > self.network[i]:
+            # Swap with the parent node
+            parent = self.get_root_node(i)
+            self.network[i], self.network[parent] = self.network[parent], self.network[i]
+            i = parent
+        
 
 class WaitlistHeap(HeapFactory):
     """Store users in waitlist"""
@@ -118,3 +135,26 @@ class WaitlistHeap(HeapFactory):
             self.min_heapify(node)
         
         return self.network
+    
+    def insert(self, key):
+        """Insert a new key (priority, user_id) into the min-heap."""
+        # Increase network size for new insertion and append a placeholder
+        self.network_size += 1
+        self.network.append((float('inf'), None))  # Extend with a tuple placeholder
+        self.decrease_heap_key(self.network_size - 1, key)  # Use network_size - 1 for correct index
+
+    def decrease_heap_key(self, i, key):
+        """Decrease the key value at index i to the new key, maintaining the min-heap property."""
+        # Check if new key is valid for a min-heap
+        if key > self.network[i]:
+            raise ValueError("New key is larger than current key")
+        
+        # Set the key at the specified index
+        self.network[i] = key
+
+        # Bubble up to maintain the min-heap property
+        while i > 0 and self.network[(i - 1) // 2] > self.network[i]:
+            # Swap with the parent node
+            self.network[i], self.network[(i - 1) // 2] = self.network[(i - 1) // 2], self.network[i]
+            i = (i - 1) // 2
+         
