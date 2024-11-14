@@ -291,28 +291,45 @@ class SeatBooking():
         # If a valid range is provided 
         #   Reservations/waitlist of the users in the range [userID1, userID2] have been released 
         if user_id_2 >= user_id_1:
-            print(f"Seats: {self.seat_heap.network}")
-            lower_bound, _ = self.seat_heap.search(user_id_1)
-            upper_bound, _ = self.seat_heap.search(user_id_2)
-            if lower_bound == -1 or upper_bound == -1:
-                print("One or both user IDs not found in the heap")
-                return
+            # print(f"Seats: {self.rbt.tree_network}")
+            # lower_bound, _ = self.seat_heap.search(user_id_1)
+            # upper_bound, _ = self.seat_heap.search(user_id_2)
+            # if lower_bound == -1 or upper_bound == -1:
+            #     print("One or both user IDs not found in the heap")
+                # return
 
             if self.waitlist_heap.network_size == 0:
-                for node in range(lower_bound, upper_bound + 1):
-                    print("Node to delete from seat: {node}")
-                    self.seat_heap.delete_node(self.seat_heap.network[node])
-                    print(f"Released seat for user ID: {self.seat_heap.network[node]}")
+                for user_id in range(user_id_1, user_id_2 + 1):
+                    print(f"Seats: {self.rbt.tree_network}")
+                    node = self.rbt.search(user_id)
+                    if isinstance(node, tree_operations.Node):
+                        print(f"Node to delete from rbt: {node.key} : {node.value}")
+                        self.rbt.delete(node.key)
+                        print(f"Released seat for user ID: {node.key}")
+                        self.seat_heap.insert(node.value)
+                        visualizations.visualize_binary_heap(self.seat_heap.network)
+                    else:
+                        print(f"{node}")
+
             
             # and the waitlist is not empty
             #   Reservations of the Users in the range [userID1, userID2] are released
             #   User <userIDa> reserved seat <seatIDa>
             #   User <userIDb> reserved seat <seatIDb>
             else:
-                for node in range(lower_bound, upper_bound + 1):
-                    print("Node to delete from waitlist: {node}")
-                    self.waitlist_heap.delete_node(self.waitlist_heap.network[node])
-                    print(f"Released seat for user ID: {self.waitlist_heap.network[node]}")
+                for user_id in range(user_id_1, user_id_2 + 1):
+                    print(f"User to delete {user_id}")
+                    print(f"Seats: {self.rbt.tree_network}")
+                    node = self.rbt.search(user_id)
+                    print(f"Node is {node}")
+                    if isinstance(node,tree_operations.Node):
+                        print(f"Before delete from rbt: Seat: {node.key} : User: {node.value}")
+                        self.rbt.delete(node.key)
+                        print(f"Released seat {node.key} with user ID: {node.value} \n  Insert back into set heap:")
+                        self.seat_heap.insert(node.value)
+                        visualizations.visualize_binary_heap(self.seat_heap.network)
+                    else:
+                        print(f"{node}")
 
     def quit(self):
         """Anything below this command in the input file will not be processed. The program terminates either when the quit command is read by the system or when it reaches the end of the input commands, which ever happens first."""

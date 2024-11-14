@@ -33,8 +33,9 @@ class TreeFactory(ABC):
 
     def _search_recursive(self, node, key):
         """Helper function that recursively searches for the node with the given key."""
-        print(node.key)
-        if node is None:
+        # print(f"Seats: {self.tree_network}")
+        print(f"Node {node} with key {node.key}")
+        if node is None or node.key is None:
             return f"User has no prior booking"  # Key not found
         
         if key == node.key:
@@ -116,7 +117,7 @@ class TreeFactory(ABC):
                 if sibling.color == "red":
                     sibling.color = "black"
                     x.parent.color = "red"
-                    self._left_rotate(x.parent)
+                    self.left_rotate(x.parent)
                     sibling = x.parent.right
                 if sibling.left.color == "black" and sibling.right.color == "black":
                     sibling.color = "red"
@@ -130,7 +131,7 @@ class TreeFactory(ABC):
                     sibling.color = x.parent.color
                     x.parent.color = "black"
                     sibling.right.color = "black"
-                    self._left_rotate(x.parent)
+                    self.left_rotate(x.parent)
                     x = self.root
             else:
                 sibling = x.parent.left
@@ -146,7 +147,7 @@ class TreeFactory(ABC):
                     if sibling.left.color == "black":
                         sibling.right.color = "black"
                         sibling.color = "red"
-                        self._left_rotate(sibling)
+                        self.left_rotate(sibling)
                         sibling = x.parent.left
                     sibling.color = x.parent.color
                     x.parent.color = "black"
