@@ -30,6 +30,18 @@ class HeapFactory(ABC):
     def extract_min(self):
         pass
 
+    def delete_node(self, node):
+        idx_of_node, _ = self.search(node)
+        if idx_of_node == -1:
+            print("Node not found in the heap")
+            return
+
+        last_node = self.network[-1] # Get last node to swap node to delete with it
+        self.network[idx_of_node] = last_node # Swap by placing last node in spot of node to delete
+        self.network.pop() # Remove node to delete
+        self.min_heapify(idx_of_node) # Heapify on original idx on node we deleted
+
+
     # @abstractmethod
     def build_heap(self):
         """Take an unordered list of n elements. 
@@ -139,13 +151,18 @@ class WaitlistHeap(HeapFactory):
     def insert(self, key):
         """Insert a new key (priority, user_id) into the min-heap."""
         # Increase network size for new insertion and append a placeholder
-        self.network_size += 1
+        # self.network_size += 1
+        
         self.network.append((float('inf'), None))  # Extend with a tuple placeholder
+        self.network_size = len(self.network)
+        print(self.network_size)
         self.decrease_heap_key(self.network_size - 1, key)  # Use network_size - 1 for correct index
 
     def decrease_heap_key(self, i, key):
         """Decrease the key value at index i to the new key, maintaining the min-heap property."""
         # Check if new key is valid for a min-heap
+        print(f"{key} vs Network size - 1: {i} vs Network size: {self.network_size}")
+        # print(f"{key} vs {self.network[i]}")
         if key > self.network[i]:
             raise ValueError("New key is larger than current key")
         
