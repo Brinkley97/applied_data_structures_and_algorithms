@@ -186,7 +186,6 @@ class SeatBooking():
                 print(f"User {user_id} is not in waitlist")
                 break
 
-
     def update_priority(self, user_id, user_priority):
         """Modify the user priority only if the user is in the waitlist heap. Update the heap with this modification.
         """
@@ -217,18 +216,16 @@ class SeatBooking():
         """We add the new seat numbers to the available seat list. The new seat numbers should follow the previously available range."""
         # If a valid integer is provided and the waitlist is empty
         #   Additional <count> Seats are made available for reservation 
-        print(self.count_seats)
+        # print(f"Previous #seats: {self.count_seats}")
+        # print(f"Updated Waitlist: {self.waitlist_heap.network}")
         if isinstance(counts, int) and counts > 0 and self.waitlist_heap.network_size == 0:
-            self.unassigned_seats = list(range(1, counts + 1))
-            print(self.unassigned_seats)
+                self.unassigned_seats = list(range(1, counts + 1))
+                print(self.unassigned_seats)
 
         # If a valid integer is provided and the waitlist is not empty
         #   Additional <count> Seats are made available for reservation 
         #   User <userID1> reserved seat <seatID1> 
         #   User <userID2> reserved seat <seatID2>
-        #   .
-        #   .
-        #   .
         elif isinstance(counts, int) and counts > 0 and self.waitlist_heap.network_size != 0:
             # Initialize the unassigned seats starting from the next available seat
             # visualizations.visualize_binary_heap(self.seat_heap.network)
@@ -237,9 +234,11 @@ class SeatBooking():
             for seat in range(self.count_seats + 1, self.count_seats + counts + 1):
                 self.seat_heap.insert(seat)
                 # print(f"Inserted seat {seat} into seat heap")
-                # visualizations.visualize_binary_heap(self.seat_heap.network)
+                visualizations.visualize_binary_heap(self.seat_heap.network)
 
             print(f"Additional {counts} seats are made available for reservation")
+            self.seat_heap.network_size = counts
+            # print(f"#Available seats: {self.seat_heap.network_size}")
 
             # Priority Handling: Get the user with the maximum priority from the waitlist
             max_priority_user = None
@@ -252,6 +251,7 @@ class SeatBooking():
                     max_priority_user = (priority, user)
 
             self.count_seats = self.count_seats + counts
+            # print(f"Max priority user: {max_priority_user}")
 
             # Continue assigning seats to users with the highest priority until there are no more seats left
             while max_priority_user is not None and not self.seat_heap.network_size == 0:
@@ -260,9 +260,9 @@ class SeatBooking():
                 # Assign seat to the max priority user
                 # print(f"Seat Heaps: {self.seat_heap.network}")
                 min_seat = self.seat_heap.extract_min()
-                # print(f"---User {max_priority_user[1]} reserved seat {min_seat}")
+                print(f"User {max_priority_user[1]} reserved seat {min_seat}")
                 self.rbt.insert(max_priority_user[1], min_seat)
-                print(self.rbt.tree_network)
+                # print(self.rbt.tree_network)
 
                 # Waitlist Update: Pop the user with the maximum priority from the waitlist
                 self.waitlist_heap.network.remove(max_priority_user)
@@ -276,10 +276,10 @@ class SeatBooking():
                     max_priority_user = None
 
             # If there are no more seats and users remain on the waitlist, print a message
-            if self.seat_heap.network_size == 0:
-                print("No more seats available to assign.")
-            if max_priority_user is None:
-                print("All users with priority have been assigned seats.")
+            # if self.seat_heap.network_size == 0:
+            #     print("No more seats available to assign.")
+            # if max_priority_user is None:
+            #     print("All users with priority have been assigned seats.")
 
     def print_reservations(self):
         # Initialize a list to store tuples with (seat_number, formatted_string)
