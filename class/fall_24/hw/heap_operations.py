@@ -155,13 +155,13 @@ class WaitlistHeap(HeapFactory):
         
         self.network.append((float('inf'), None))  # Extend with a tuple placeholder
         self.network_size = len(self.network)
-        print(self.network_size)
+        # print(self.network_size)
         self.decrease_heap_key(self.network_size - 1, key)  # Use network_size - 1 for correct index
 
     def decrease_heap_key(self, i, key):
         """Decrease the key value at index i to the new key, maintaining the min-heap property."""
         # Check if new key is valid for a min-heap
-        print(f"{key} vs Network size - 1: {i} vs Network size: {self.network_size}")
+        # print(f"{key} vs Network size - 1: {i} vs Network size: {self.network_size}")
         # print(f"{key} vs {self.network[i]}")
         if key > self.network[i]:
             raise ValueError("New key is larger than current key")

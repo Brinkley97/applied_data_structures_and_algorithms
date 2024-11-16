@@ -43,7 +43,8 @@ class SeatBooking():
         """
         # Total Seats Available : <available seat count>, Waitlist : <waitlist length> 
         # return f"Total Seats Available : {len(self.unassigned_seats)}, Waitlist : <waitlist length>"
-        return f"Total Seats Available : {self.seat_heap.network_size}, Waitlist : {self.waitlist_heap.network_size}"
+        print(f"Total Seats Available : {self.seat_heap.network_size}, Waitlist : {self.waitlist_heap.network_size}")
+        # return f"Total Seats Available : {self.seat_heap.network_size}, Waitlist : {self.waitlist_heap.network_size}"
 
     def reserve(self, user_id, user_priority):
         """Allow a user to reserve the seat that is available from the unassigned seat list and update the reserved seats tree. If no seats are currently available, create a new entry in the waitlist heap as per the user’s priority and timestamp. Print out the seat number if a seat is assigned. If the user is added to the waitlist, print out a message to the user stating that he is added to the waitlist. 
@@ -57,7 +58,7 @@ class SeatBooking():
 
             print(f"    1) Insert into Red-Black Tree User {user_id} and Seat {min_seat} with root node color of {self.rbt.root.color} \n       RBT {self.rbt.tree_network} \n    2) Remove {min_seat} from Seat Heap")
 
-            # visualizations.visualize_binary_heap(self.seat_heap.network)
+            visualizations.visualize_binary_heap(self.seat_heap.network)
         
         # If the user is added to the waiting list
         #   User <userID> is added to the waiting list
@@ -67,103 +68,124 @@ class SeatBooking():
 
     def cancel(self, seat_id, user_id):
         """Reassign the seat to a user from the waitlist heap. If the waitlist is empty, delete the node and add it back to the available seats."""
+
+        print(f"RBT: {self.rbt.tree_network}")
         
         # Check if reservation exists
         if not self.rbt:
-            print("No reservation found.")
+            # print("No reservation found.")
             return
 
         # Search for user in reservation tree
         user_node = self.rbt.search(user_id)
+        # print(f"User node: {user_node}")
+        print(f"User {user_node.key} with seat {user_node.value}")
     
         # If the user had a booking prior and the waitlist is empty 
         #   User <userID> canceled their reservation 
         if user_node and self.waitlist_heap.network_size == 0:
-            print(f"User {user_id} canceled their reservation, reinserting seat {seat_id} into seat heap.")
+            if user_node.value == seat_id:
+                print(f"User {user_id} canceled their reservation")
+                # print(f"Reinserting seat {seat_id} into seat heap.")
 
-            # Remove reservation for the user and insert seat back into seat heap
-            self.rbt.delete(user_id)
-            self.seat_heap.insert(seat_id)
+                # Remove reservation for the user and insert seat back into seat heap
+                self.rbt.delete(user_id)
+                self.seat_heap.insert(seat_id)
 
-            # Visualize the updates
-            print(f"Updated RBT: {self.rbt.tree_network}")
-            visualizations.visualize_binary_heap(self.seat_heap.network)
+                # Visualize the updates
+                print(f"Updated RBT: {self.rbt.tree_network}")
+                visualizations.visualize_binary_heap(self.seat_heap.network)
+            else:
+                print(f"User {user_id} does not have reservation for seat {seat_id} to cancel")
+
 
         # If the user had a booking prior and the waitlist is not empty
         #   User <userID> canceled their reservation
         #   User <userIDx> reserved seat <seatIDx>
         elif user_node and self.waitlist_heap.network_size != 0:
-            print(f"User {user_id} canceled their reservation. Pulling from waitlist.")
+            if user_node.value == seat_id:
+                print(f"User {user_id} canceled their reservation.")
+                # print("Pulling from waitlist.")
 
-            # Remove user reservation and insert seat back to seat heap
-            self.rbt.delete(user_id)
-            self.seat_heap.insert(seat_id)
-            
-            # Initial priority value to track the highest priority user
-            previous_priority = 0
-            highest_priority_user = None
-            highest_priority_index = -1
-
-            # Iterate over waitlist to find highest priority user
-            for idx in range(len(self.waitlist_heap.network)):
-                priority, user = self.waitlist_heap.network[idx]
+                # Remove user reservation and insert seat back to seat heap
+                self.rbt.delete(user_id)
+                self.seat_heap.insert(seat_id)
                 
-                # Update highest priority if a higher one is found
-                if priority > previous_priority:
-                    previous_priority = priority
-                    highest_priority_user = user
-                    highest_priority_index = idx
+                # Initial priority value to track the highest priority user
+                previous_priority = 0
+                highest_priority_user = None
+                highest_priority_index = -1
 
-            # If a highest-priority user is identified, reassign them to the seat
-            if highest_priority_user is not None:
-                # Get the available seat with the lowest ID and assign it to the highest priority user
-                min_seat = self.seat_heap.extract_min()
-                self.rbt.insert(highest_priority_user, min_seat)
-                print(f"User {highest_priority_user} reserved seat {min_seat}")
+                # Iterate over waitlist to find highest priority user
+                for idx in range(len(self.waitlist_heap.network)):
+                    priority, user = self.waitlist_heap.network[idx]
+                    
+                    # Update highest priority if a higher one is found
+                    if priority > previous_priority:
+                        previous_priority = priority
+                        highest_priority_user = user
+                        highest_priority_index = idx
 
-                # Remove only the highest-priority user from waitlist by creating a new list without that entry
-                new_waitlist = []
-                for i, entry in enumerate(self.waitlist_heap.network):
-                    if i != highest_priority_index:
-                        new_waitlist.append(entry)
-                self.waitlist_heap.network = new_waitlist
-                self.waitlist_heap.network_size -= 1  # Update network size
+                # If a highest-priority user is identified, reassign them to the seat
+                if highest_priority_user is not None:
+                    # Get the available seat with the lowest ID and assign it to the highest priority user
+                    min_seat = self.seat_heap.extract_min()
+                    self.rbt.insert(highest_priority_user, min_seat)
+                    print(f"User {highest_priority_user} reserved seat {min_seat}")
 
-                # Print updated waitlist
+                    # Remove only the highest-priority user from waitlist by creating a new list without that entry
+                    new_waitlist = []
+                    for i, entry in enumerate(self.waitlist_heap.network):
+                        if i != highest_priority_index:
+                            new_waitlist.append(entry)
+                    self.waitlist_heap.network = new_waitlist
+                    self.waitlist_heap.network_size -= 1  # Update network size
+
+                    # Print updated waitlist
+                    print(f"Updated Waitlist: {self.waitlist_heap.network}")
+                    print(f"RBT: {self.rbt.tree_network}")
+            else:
+                print(f"User {user_id} does not have reservation for seat {seat_id} to cancel")
                 print(f"Updated Waitlist: {self.waitlist_heap.network}")
+                print(f"RBT: {self.rbt.tree_network}")
 
         # If the user has no booking prior
         elif not user_node:
             print(f"User {user_id} has no reservation to cancel")
 
         # Case: Seat does not belong to the user (edge case if specific seat check is needed)
+        # elif user_node == user_id and user_node.value != seat_id:
+        #     print(f"User {user_id} does not have reservation for seat {seat_id} to cancel")
+
         else:
-            print(f"User {user_id} does not have reservation for seat {seat_id} to cancel")
+            print(f"No case found")
 
     def exit_waitlist(self, user_id):
         """If the user is in the waiting list, remove him from the waiting list. If the user is already assigned a seat prior to this, the user must use the cancel function to cancel his reservation instead.
         """
         # If the user is in the waiting list 
         #   User <userID> is removed from the waiting list
-        print(f"Waitlist: {self.waitlist_heap.network}")
+        # print(f"Waitlist: {self.waitlist_heap.network}")
         # self.waitlist_heap.extract_min()
         old_priority = 0
         for priority_user_idx in range(len(self.waitlist_heap.network)):
             updated_priority_user_idx = priority_user_idx + 1
             # priority_user_idx += 1
-            print(f"idx: {priority_user_idx}")
+            # print(f"idx: {priority_user_idx}")
             priority_user = self.waitlist_heap.network[priority_user_idx]
-            print(priority_user)
+            # print(priority_user)
             priority, user = priority_user
             # user = self.waitlist_heap.search(user_id)
             if user == user_id:
-                print(f"User {user_id} is in waitlist")
+                pass
+                # print(f"User {user_id} is in waitlist")
                 # self.waitlist_heap ---> NEED to write code to remove
+            # If the user is not in the waiting list 
+            #   User <userID> is not in waitlist
             else:
                 print(f"User {user_id} is not in waitlist")
                 break
-        # If the user is not in the waiting list 
-        #   User <userID> is not in waitlist
+
 
     def update_priority(self, user_id, user_priority):
         """Modify the user priority only if the user is in the waitlist heap. Update the heap with this modification.
@@ -177,14 +199,14 @@ class SeatBooking():
 
             # Unpack the priority and user_id for comparison
             original_priority, user = priority_user
-            print(f"Before update: User {user_id} priority is {original_priority} \n  {self.waitlist_heap.network}")
+            # print(f"Before update: User {user_id} priority is {original_priority} \n  {self.waitlist_heap.network}")
 
             
             # Check if the user_id matches the target user_id
             if user == user_id:
                 # If the user is found, update the priority and break out of the loop
                 self.waitlist_heap.network[priority_user_idx] = (user_priority, user_id)
-                print(f"After update: User {user_id} priority has been updated to {user_priority} \n  {self.waitlist_heap.network}")
+                # print(f"After update: User {user_id} priority has been updated to {user_priority} \n  {self.waitlist_heap.network}")
                 
                 # Optional: Reheapify if necessary after the update
                 # self.waitlist_heap.build_heap(self.waitlist_heap.network)
@@ -209,13 +231,13 @@ class SeatBooking():
         #   .
         elif isinstance(counts, int) and counts > 0 and self.waitlist_heap.network_size != 0:
             # Initialize the unassigned seats starting from the next available seat
-            visualizations.visualize_binary_heap(self.seat_heap.network)
+            # visualizations.visualize_binary_heap(self.seat_heap.network)
             
             # Insert the new seats into the seat heap
             for seat in range(self.count_seats + 1, self.count_seats + counts + 1):
                 self.seat_heap.insert(seat)
-                print(f"Inserted seat {seat} into seat heap")
-                visualizations.visualize_binary_heap(self.seat_heap.network)
+                # print(f"Inserted seat {seat} into seat heap")
+                # visualizations.visualize_binary_heap(self.seat_heap.network)
 
             print(f"Additional {counts} seats are made available for reservation")
 
@@ -233,19 +255,19 @@ class SeatBooking():
 
             # Continue assigning seats to users with the highest priority until there are no more seats left
             while max_priority_user is not None and not self.seat_heap.network_size == 0:
-                print(f"Max priority user: {max_priority_user[1]} with priority {max_priority_user[0]}")
+                # print(f"Max priority user: {max_priority_user[1]} with priority {max_priority_user[0]}")
 
                 # Assign seat to the max priority user
-                print(f"Seat Heaps: {self.seat_heap.network}")
+                # print(f"Seat Heaps: {self.seat_heap.network}")
                 min_seat = self.seat_heap.extract_min()
-                print(f"---User {max_priority_user[1]} reserved seat {min_seat}")
+                # print(f"---User {max_priority_user[1]} reserved seat {min_seat}")
                 self.rbt.insert(max_priority_user[1], min_seat)
                 print(self.rbt.tree_network)
 
                 # Waitlist Update: Pop the user with the maximum priority from the waitlist
                 self.waitlist_heap.network.remove(max_priority_user)
                 self.waitlist_heap.network_size = len(self.waitlist_heap.network)
-                print(f"Waitlist after assignment: {self.waitlist_heap.network}")
+                # print(f"Waitlist after assignment: {self.waitlist_heap.network}")
 
                 # After removing the user, check for the next highest priority user in the waitlist
                 if self.waitlist_heap.network:
@@ -300,16 +322,17 @@ class SeatBooking():
 
             if self.waitlist_heap.network_size == 0:
                 for user_id in range(user_id_1, user_id_2 + 1):
-                    print(f"Seats: {self.rbt.tree_network}")
+                    # print(f"Seats: {self.rbt.tree_network}")
                     node = self.rbt.search(user_id)
                     if isinstance(node, tree_operations.Node):
-                        print(f"Node to delete from rbt: {node.key} : {node.value}")
+                        # print(f"Node to delete from rbt: {node.key} : {node.value}")
                         self.rbt.delete(node.key)
-                        print(f"Released seat for user ID: {node.key}")
+                        # print(f"Released seat for user ID: {node.key}")
                         self.seat_heap.insert(node.value)
-                        visualizations.visualize_binary_heap(self.seat_heap.network)
+                        # visualizations.visualize_binary_heap(self.seat_heap.network)
                     else:
-                        print(f"{node}")
+                        pass
+                        # print(f"{node}")
 
             
             # and the waitlist is not empty
@@ -318,18 +341,19 @@ class SeatBooking():
             #   User <userIDb> reserved seat <seatIDb>
             else:
                 for user_id in range(user_id_1, user_id_2 + 1):
-                    print(f"User to delete {user_id}")
-                    print(f"Seats: {self.rbt.tree_network}")
+                    # print(f"User to delete {user_id}")
+                    # print(f"Seats: {self.rbt.tree_network}")
                     node = self.rbt.search(user_id)
-                    print(f"Node is {node}")
+                    # print(f"Node is {node}")
                     if isinstance(node,tree_operations.Node):
-                        print(f"Before delete from rbt: Seat: {node.key} : User: {node.value}")
+                        # print(f"Before delete from rbt: Seat: {node.key} : User: {node.value}")
                         self.rbt.delete(node.key)
-                        print(f"Released seat {node.key} with user ID: {node.value} \n  Insert back into set heap:")
+                        # print(f"Released seat {node.key} with user ID: {node.value} \n  Insert back into set heap:")
                         self.seat_heap.insert(node.value)
-                        visualizations.visualize_binary_heap(self.seat_heap.network)
+                        # visualizations.visualize_binary_heap(self.seat_heap.network)
                     else:
-                        print(f"{node}")
+                        pass
+                        # print(f"{node}")
 
     def quit(self):
         """Anything below this command in the input file will not be processed. The program terminates either when the quit command is read by the system or when it reaches the end of the input commands, which ever happens first."""
