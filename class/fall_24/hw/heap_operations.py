@@ -174,4 +174,3 @@ class WaitlistHeap(HeapFactory):
             # Swap with the parent node
             self.network[i], self.network[(i - 1) // 2] = self.network[(i - 1) // 2], self.network[i]
             i = (i - 1) // 2
-         

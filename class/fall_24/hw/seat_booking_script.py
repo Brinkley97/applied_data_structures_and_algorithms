@@ -1,4 +1,4 @@
-import heap_operations, tree_operations, visualizations
+import heap_operations, tree_operations, visualizations, time
 
 
 class SeatBooking():
@@ -37,7 +37,6 @@ class SeatBooking():
         else:
             return "Invalid input. Please provide a valid number of seats."
 
-
     def available(self):
         """Print the number of seats that are currently available for reservation and the length of the waitlist
         """
@@ -58,13 +57,16 @@ class SeatBooking():
 
             print(f"    1) Insert into Red-Black Tree User {user_id} and Seat {min_seat} with root node color of {self.rbt.root.color} \n       RBT {self.rbt.tree_network} \n    2) Remove {min_seat} from Seat Heap")
 
-            visualizations.visualize_binary_heap(self.seat_heap.network)
+            # visualizations.visualize_binary_heap(self.seat_heap.network)
         
         # If the user is added to the waiting list
         #   User <userID> is added to the waiting list
         else:
-            self.waitlist_heap.insert((user_priority, user_id))  # Insert based on priority and user ID as a tuple
+            current_timestamp = time.time()
+            self.waitlist_heap.insert((user_priority, current_timestamp, user_id))  # Insert based on priority and user ID as a tuple
+            # self.waitlist_by_time.
             print(f"User {user_id} is added to the waiting list")
+            print(f"    waitlist: {self.waitlist_heap.network}")
 
     def cancel(self, seat_id, user_id):
         """Reassign the seat to a user from the waitlist heap. If the waitlist is empty, delete the node and add it back to the available seats."""
@@ -96,7 +98,7 @@ class SeatBooking():
                 print(f"Updated RBT: {self.rbt.tree_network}")
                 visualizations.visualize_binary_heap(self.seat_heap.network)
             else:
-                print(f"User {user_id} does not have reservation for seat {seat_id} to cancel")
+                print(f"User {user_id} has no reservation for seat {seat_id} to cancel")
 
 
         # If the user had a booking prior and the waitlist is not empty
@@ -118,7 +120,7 @@ class SeatBooking():
 
                 # Iterate over waitlist to find highest priority user
                 for idx in range(len(self.waitlist_heap.network)):
-                    priority, user = self.waitlist_heap.network[idx]
+                    priority, time, user = self.waitlist_heap.network[idx]
                     
                     # Update highest priority if a higher one is found
                     if priority > previous_priority:
@@ -174,7 +176,7 @@ class SeatBooking():
             # print(f"idx: {priority_user_idx}")
             priority_user = self.waitlist_heap.network[priority_user_idx]
             # print(priority_user)
-            priority, user = priority_user
+            priority, time_reserved, user = priority_user
             # user = self.waitlist_heap.search(user_id)
             if user == user_id:
                 pass
@@ -189,7 +191,7 @@ class SeatBooking():
     def update_priority(self, user_id, user_priority):
         """Modify the user priority only if the user is in the waitlist heap. Update the heap with this modification.
         """
-
+        print(f"waitlist: {self.waitlist_heap.network}")
         # Iterate over each item in the waitlist heap to find the user by user_id
         for priority_user_idx in range(len(self.waitlist_heap.network)):
             
@@ -197,20 +199,21 @@ class SeatBooking():
             priority_user = self.waitlist_heap.network[priority_user_idx]
 
             # Unpack the priority and user_id for comparison
-            original_priority, user = priority_user
-            # print(f"Before update: User {user_id} priority is {original_priority} \n  {self.waitlist_heap.network}")
+            original_priority, time_reserved, user = priority_user
+            # print(f"Before update: User {user_id} == {user} priority is {original_priority} \n  {self.waitlist_heap.network}")
 
             
             # Check if the user_id matches the target user_id
             if user == user_id:
                 # If the user is found, update the priority and break out of the loop
-                self.waitlist_heap.network[priority_user_idx] = (user_priority, user_id)
+                self.waitlist_heap.network[priority_user_idx] = (user_priority, time_reserved, user_id)
                 # print(f"After update: User {user_id} priority has been updated to {user_priority} \n  {self.waitlist_heap.network}")
                 
                 # Optional: Reheapify if necessary after the update
                 # self.waitlist_heap.build_heap(self.waitlist_heap.network)
                 
                 break
+        print(f"User {user_id} priority has been updated to {user_priority}")
     
     def add_seats(self, counts):
         """We add the new seat numbers to the available seat list. The new seat numbers should follow the previously available range."""
@@ -234,52 +237,48 @@ class SeatBooking():
             for seat in range(self.count_seats + 1, self.count_seats + counts + 1):
                 self.seat_heap.insert(seat)
                 # print(f"Inserted seat {seat} into seat heap")
-                visualizations.visualize_binary_heap(self.seat_heap.network)
+                # visualizations.visualize_binary_heap(self.seat_heap.network)
+            visualizations.visualize_binary_heap(self.seat_heap.network)
 
             print(f"Additional {counts} seats are made available for reservation")
             self.seat_heap.network_size = counts
             # print(f"#Available seats: {self.seat_heap.network_size}")
 
             # Priority Handling: Get the user with the maximum priority from the waitlist
-            max_priority_user = None
-            max_priority = -float('inf')  # Initialize to a very low value
+            # max_priority_user = None
+            # max_priority = -float('inf')  # Initialize to a very low value
 
-            for priority_user in self.waitlist_heap.network:
-                priority, user = priority_user
-                if priority > max_priority:
-                    max_priority = priority
-                    max_priority_user = (priority, user)
+            # print(f"waitlist: {self.waitlist_heap.network}")
 
-            self.count_seats = self.count_seats + counts
+            # for priority_user in self.waitlist_heap.network:
+            #     priority, time_reserved, user = priority_user
+            #     if priority > max_priority:
+            #         max_priority = priority
+            #         max_priority_user = (priority, time_reserved, user)
+
+            # self.count_seats = self.count_seats + counts
             # print(f"Max priority user: {max_priority_user}")
 
             # Continue assigning seats to users with the highest priority until there are no more seats left
-            while max_priority_user is not None and not self.seat_heap.network_size == 0:
-                # print(f"Max priority user: {max_priority_user[1]} with priority {max_priority_user[0]}")
+            while self.seat_heap.network and self.seat_heap.network_size >= 0:
+                max_priority_user = self.get_highest_priority_user(self.waitlist_heap.network)
+                print(f"Max priority user: {max_priority_user[2]} with priority {max_priority_user[0]} and timestamp {max_priority_user[1]}")
 
                 # Assign seat to the max priority user
                 # print(f"Seat Heaps: {self.seat_heap.network}")
                 min_seat = self.seat_heap.extract_min()
-                print(f"User {max_priority_user[1]} reserved seat {min_seat}")
-                self.rbt.insert(max_priority_user[1], min_seat)
+                print(f"User {max_priority_user[2]} reserved seat {min_seat}")
+                self.rbt.insert(max_priority_user[2], min_seat)
                 # print(self.rbt.tree_network)
 
                 # Waitlist Update: Pop the user with the maximum priority from the waitlist
                 self.waitlist_heap.network.remove(max_priority_user)
                 self.waitlist_heap.network_size = len(self.waitlist_heap.network)
-                # print(f"Waitlist after assignment: {self.waitlist_heap.network}")
+                print(f"Waitlist after assignment: {self.waitlist_heap.network}")
 
-                # After removing the user, check for the next highest priority user in the waitlist
-                if self.waitlist_heap.network:
-                    max_priority_user = max(self.waitlist_heap.network, key=lambda x: x[0])
-                else:
-                    max_priority_user = None
-
-            # If there are no more seats and users remain on the waitlist, print a message
-            # if self.seat_heap.network_size == 0:
-            #     print("No more seats available to assign.")
-            # if max_priority_user is None:
-            #     print("All users with priority have been assigned seats.")
+            # If no more seats are available, print the updated waitlist
+            if self.waitlist_heap.network:
+                print(f"Remaining waitlist: {self.waitlist_heap.network}")
 
     def print_reservations(self):
         # Initialize a list to store tuples with (seat_number, formatted_string)
@@ -325,7 +324,7 @@ class SeatBooking():
                 for user_id in range(user_id_1, user_id_2 + 1):
                     # print(f"Seats: {self.rbt.tree_network}")
                     node = self.rbt.search(user_id)
-                    print(f"node: {node}")
+                    # print(f"node: {node}")
 
                     # If node is type Node
                     if isinstance(node, tree_operations.Node):
@@ -361,10 +360,10 @@ class SeatBooking():
                         max_priority = -float('inf')  # Initialize to a very low value
 
                         for priority_user in self.waitlist_heap.network:
-                            priority, user = priority_user
+                            priority, time_reserved, user = priority_user
                             if priority > max_priority:
                                 max_priority = priority
-                                max_priority_user = (priority, user)
+                                max_priority_user = (priority, time_reserved, user)
 
                         # self.count_seats = self.count_seats + counts
                         # print(f"Max priority user: {max_priority_user}")
@@ -404,8 +403,13 @@ class SeatBooking():
         """Anything below this command in the input file will not be processed. The program terminates either when the quit command is read by the system or when it reaches the end of the input commands, which ever happens first."""
         print("Program Terminated!!")
 
-
-# Red-Black tree is separate
-#   Connect to this main code; book ticket (call reserve) to call red black tree function
-# Binary Min-Heap tree is separate
-#   Connect to this main code waitlist
+    def get_highest_priority_user(self, waitlist):
+        """Helper function to find the user with the highest priority and earliest timestamp."""
+        highest_priority_user = waitlist[0]
+        for user in waitlist:
+            if user[0] > highest_priority_user[0]:  # Compare priorities
+                highest_priority_user = user
+            elif user[0] == highest_priority_user[0]:  # Resolve ties by timestamp
+                if user[1] < highest_priority_user[1]:
+                    highest_priority_user = user
+        return highest_priority_user
