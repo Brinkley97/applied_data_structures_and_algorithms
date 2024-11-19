@@ -1,15 +1,15 @@
-import heap_operations, tree_operations, visualizations, time
+import heap_operations, tree_operations, visualizations, time, sys
 
 
 class SeatBooking():
     def __init__(self):
-        self.unassigned_seats = []  # This is the reusable list
-        self.users = {}
+        self.unassigned_seats = []  # Store unassigned seats
+        # self.users = {}
         self.seat_heap = None
         self.waitlist_heap = None
         self.rbt = None
-        self.root = None
-        self.count_seats = 0
+        # self.root = None
+        self.count_seats = 0 #
         
     def initialize(self, seat_count):
         """Initialize the events with the specified number of seats, denoted as “seatCount”. 
@@ -19,10 +19,10 @@ class SeatBooking():
         # If a valid integer is provided 
         #   <seatCount> Seats are made available for reservation 
         if isinstance(seat_count, int) and seat_count > 0:
-            # Instead of resetting, append new seats to the existing list
-            start_seat = len(self.unassigned_seats) + 1  # Start from the next seat number
+            
+            start_seat = len(self.unassigned_seats) + 1
             new_seats = list(range(start_seat, start_seat + seat_count))
-            self.unassigned_seats.extend(new_seats)  # Add new seats to the list
+            self.unassigned_seats.extend(new_seats)
             
             # Initialize heap and tree structures
             self.seat_heap = heap_operations.SeatHeap()
@@ -106,7 +106,7 @@ class SeatBooking():
         #   User <userIDx> reserved seat <seatIDx>
         elif user_node and self.waitlist_heap.network_size != 0:
             if user_node.value == seat_id:
-                print(f"User {user_id} canceled their reservation.")
+                print(f"User {user_id} canceled their reservation")
                 # print("Pulling from waitlist.")
 
                 # Remove user reservation and insert seat back to seat heap
@@ -147,7 +147,7 @@ class SeatBooking():
                     # print(f"Updated Waitlist: {self.waitlist_heap.network}")
                     # print(f"RBT: {self.rbt.tree_network}")
             else:
-                print(f"User {user_id} does not have reservation for seat {seat_id} to cancel")
+                print(f"User {user_id} has no reservation for seat {seat_id} to cancel")
                 # print(f"Updated Waitlist: {self.waitlist_heap.network}")
                 # print(f"RBT: {self.rbt.tree_network}")
 
@@ -298,117 +298,22 @@ class SeatBooking():
         # Iterate through each node in the red-black tree's network
         for node in self.rbt.tree_network:
             # Format the node as a string in the desired format
-            formatted_node = f"(seat={node.value}, user={node.key})"
+            formatted_node = f"Seat {node.value}, User {node.key}"
             
             # Append a tuple containing the seat number and formatted string to the list
             nodes_with_seats.append((node.value, formatted_node))
+            # nodes_with_seats.append((" ", " "))
         
         # Sort the list of tuples by seat number (first element in each tuple)
         nodes_with_seats.sort()
         
         # Extract the formatted strings in sorted order and store in a new list
-        sorted_nodes = []
+        # Print the sorted formatted strings
         for _, formatted_node in nodes_with_seats:
-            sorted_nodes.append(formatted_node)
+            print(formatted_node)
         
         # Print the final sorted list of formatted nodes
         # print("RBT", sorted_nodes)
-
-    # def release_seats(self, user_id_1, user_id_2):
-    #     """We release all the seats assigned (in Red Black tree) to the users whose ID falls in the range [userID1, userID2]. It is guaranteed that user_id_2 >= user_id_1. We even remove the users from the waitlist if they are present there. The status of the change should be printed ordered by userID’s in the range.
-
-    #     Once removed from rbt, insert back into seats heap to be available
-    #     """
-    #     print(f"Pre-RBT: {self.rbt.tree_network}")
-    #     print(f"Waitlist: {self.waitlist_heap.network}")
-    #     # If a valid range is provided 
-    #     #   Reservations/waitlist of the users in the range [userID1, userID2] have been released 
-    #     if user_id_2 >= user_id_1:
-    #         # print(f"Seats: {self.rbt.tree_network}")
-    #         # lower_bound, _ = self.seat_heap.search(user_id_1)
-    #         # upper_bound, _ = self.seat_heap.search(user_id_2)
-    #         # if lower_bound == -1 or upper_bound == -1:
-    #         #     print("One or both user IDs not found in the heap")
-    #             # return
-
-    #         if self.waitlist_heap.network_size == 0:
-    #             for user_id in range(user_id_1, user_id_2 + 1):
-    #                 # print(f"Seats: {self.rbt.tree_network}")
-    #                 node = self.rbt.search(user_id)
-    #                 # print(f"node: {node}")
-
-    #                 # If node is type Node
-    #                 if isinstance(node, tree_operations.Node):
-    #                     print(f"Node to delete from rbt: {node.key} : {node.value}")
-    #                     self.rbt.delete(node.key)
-    #                     print(f"Released seat for user ID: {node.key}")
-    #                     self.seat_heap.insert(node.value)
-    #                     visualizations.visualize_binary_heap(self.seat_heap.network)
-    #                 # If node is NOT type Node
-    #                 else:
-    #                     pass
-    #                     # print(f"{node}")
-
-            
-    #         # and the waitlist is not empty
-    #         #   Reservations of the Users in the range [userID1, userID2] are released
-    #         #   User <userIDa> reserved seat <seatIDa>
-    #         #   User <userIDb> reserved seat <seatIDb>
-    #         else:
-    #             for user_id in range(user_id_1, user_id_2 + 1):
-    #                 # print(f"User to delete {user_id}")
-    #                 # print(f"Seats: {self.rbt.tree_network}")
-    #                 node = self.rbt.search(user_id)
-    #                 # print(f"Node is {node}")
-    #                 if isinstance(node,tree_operations.Node):
-    #                     print(f"Before delete from rbt: Seat: {node.key} : User: {node.value}")
-    #                     self.rbt.delete(node.key)
-    #                     # print(f"Released seat {node.key} with user ID: {node.value} \n  Insert back into set heap:")
-    #                     self.seat_heap.insert(node.value)
-    #                     # self.rbt.insert(node.value)
-    #                     # Priority Handling: Get the user with the maximum priority from the waitlist
-    #                     max_priority_user = None
-    #                     max_priority = -float('inf')  # Initialize to a very low value
-
-    #                     for priority_user in self.waitlist_heap.network:
-    #                         priority, time_reserved, user = priority_user
-    #                         if priority > max_priority:
-    #                             max_priority = priority
-    #                             max_priority_user = (priority, time_reserved, user)
-
-    #                     # self.count_seats = self.count_seats + counts
-    #                     # print(f"Max priority user: {max_priority_user}")
-    #                     # Continue assigning seats to users with the highest priority until there are no more seats left
-    #                     while max_priority_user is not None and not self.seat_heap.network_size == 0:
-    #                         # print(f"Max priority user: {max_priority_user[1]} with priority {max_priority_user[0]}")
-
-    #                         # Assign seat to the max priority user
-    #                         # print(f"Seat Heaps: {self.seat_heap.network}")
-    #                         min_seat = self.seat_heap.extract_min()
-    #                         print(f"User {max_priority_user[1]} reserved seat {min_seat}")
-    #                         self.rbt.insert(max_priority_user[1], min_seat)
-    #                         # print(self.rbt.tree_network)
-
-    #                         # Waitlist Update: Pop the user with the maximum priority from the waitlist
-    #                         self.waitlist_heap.network.remove(max_priority_user)
-    #                         self.waitlist_heap.network_size = len(self.waitlist_heap.network)
-    #                         # print(f"Waitlist after assignment: {self.waitlist_heap.network}")
-
-    #                         # After removing the user, check for the next highest priority user in the waitlist
-    #                         if self.waitlist_heap.network:
-    #                             max_priority_user = max(self.waitlist_heap.network, key=lambda x: x[0])
-    #                         else:
-    #                             max_priority_user = None
-
-    #                         visualizations.visualize_binary_heap(self.seat_heap.network)
-    #                         print(f"After delete from rbt: Seat: {node.key} : User: {node.value}")
-
-
-    #                 else:
-    #                     pass
-    #                     # print(f"{node}")
-    #             print(f"Reservations of the Users in range [{user_id_1}, {user_id_2}] are released")
-    #         print(f"RBT: {self.rbt.tree_network}")
 
     def release_seats(self, user_id_1, user_id_2):
         """
@@ -419,8 +324,9 @@ class SeatBooking():
 
         Once removed from the RBT, insert seats back into the seat heap to make them available.
         """
-        print(f"Pre-RBT: {self.rbt.tree_network}")
-        print(f"Waitlist: {self.waitlist_heap.network}")
+        # print(f"Pre-RBT: {self.rbt.tree_network}")
+        # print(f"Waitlist: {self.waitlist_heap.network}")
+        print(f"Reservations of the Users in range [{user_id_1}, {user_id_2}] are released")
 
         # Validate the range
         if user_id_2 >= user_id_1:
@@ -430,13 +336,13 @@ class SeatBooking():
                 node = self.rbt.search(user_id)
 
                 if isinstance(node, tree_operations.Node):
-                    print(f"Node to delete from RBT: {node.key} : {node.value}")
+                    # print(f"Node to delete from RBT: {node.key} : {node.value}")
                     self.rbt.delete(node.key)
-                    print(f"Released seat for user ID: {node.key}")
+                    # print(f"Released seat for user ID: {node.key}")
 
                     # Add the released seat back to the seat heap
                     self.seat_heap.insert(node.value)
-                    visualizations.visualize_binary_heap(self.seat_heap.network)
+                    # visualizations.visualize_binary_heap(self.seat_heap.network)
 
                     # If the waitlist is not empty, assign seats to users with the highest priority
                     while self.seat_heap.network_size > 0 and self.waitlist_heap.network_size > 0:
@@ -445,7 +351,7 @@ class SeatBooking():
                         if max_priority_user is None:
                             break
 
-                        print(f"Max priority user: {max_priority_user[2]} with priority {max_priority_user[0]} and timestamp {max_priority_user[1]}")
+                        # print(f"Max priority user: {max_priority_user[2]} with priority {max_priority_user[0]} and timestamp {max_priority_user[1]}")
 
                         # Assign the seat to the highest priority user
                         min_seat = self.seat_heap.extract_min()
@@ -455,19 +361,21 @@ class SeatBooking():
                         # Remove the assigned user from the waitlist
                         self.waitlist_heap.network.remove(max_priority_user)
                         self.waitlist_heap.network_size -= 1
-                        print(f"Waitlist after assignment: {self.waitlist_heap.network}")
+                        # print(f"Waitlist after assignment: {self.waitlist_heap.network}")
 
                 else:
-                    print(f"User ID {user_id} not found in the RBT")
+                    # print(f"User ID {user_id} not found in the RBT")
+                    pass
 
-            print(f"Reservations of the Users in range [{user_id_1}, {user_id_2}] are released")
-            print(f"Post-RBT: {self.rbt.tree_network}")
+            # print(f"Reservations of the Users in range [{user_id_1}, {user_id_2}] are released")
+            # print(f"Post-RBT: {self.rbt.tree_network}")
         else:
-            print("Invalid range: user_id_2 must be >= user_id_1")
+            return (f"Invalid range: {user_id_2} must be >= {user_id_1}")
 
     def quit(self):
         """Anything below this command in the input file will not be processed. The program terminates either when the quit command is read by the system or when it reaches the end of the input commands, which ever happens first."""
         print("Program Terminated!!")
+        sys.exit()
 
     def get_highest_priority_user(self, waitlist):
         """Helper function to find the user with the highest priority and earliest timestamp."""

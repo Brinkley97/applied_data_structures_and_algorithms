@@ -1,11 +1,13 @@
 # Variables
 PYTHON := python3
 READER := main.py
-TEST_FILE ?= testCase3.txt  # Default test file if not provided
+TEST_FILE ?= testCase_input.txt  # Default test file if not provided
+OUTPUT_FILE := $(basename $(TEST_FILE))_output.txt  # Output file based on TEST_FILE name
 
 # Default target
 run:
-	$(PYTHON) $(READER) $(TEST_FILE)
+	$(PYTHON) $(READER) $(TEST_FILE) > $(OUTPUT_FILE)
+	@echo "Output saved to $(OUTPUT_FILE)"
 
 # Cleanup target
 clean:
