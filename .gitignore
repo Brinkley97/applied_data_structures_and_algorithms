@@ -7,3 +7,7 @@
 /class/fall_22/venv/bin
 /class/fall_22/venv
 *.pyc
+*.MP4
+*.zip
+*.jpg
+.DS_Store
