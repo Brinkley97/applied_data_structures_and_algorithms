@@ -2,16 +2,17 @@ from abc import ABC, abstractmethod
 
 class Node:
     def __init__(self, key=None, value=None, color="red", left=None, right=None, parent=None):
-        self.key = key          # The key to be used for comparison in the tree
-        self.value = value      # The value associated with the key
+        self.key = key          # The user ID
+        self.value = value      # The seat ID
         self.color = color      # Used for red-black trees
         self.parent = parent    # Reference to the parent node
         self.left = left        # Reference to the left child
         self.right = right      # Reference to the right child
 
     def __repr__(self):
-        # Custom string representation for the node
-        return f"Node(User={self.key}, Seat={self.value}, color={self.color})"
+        """Custom string representation for the node"""
+
+        return f"Seat {self.value}, User {self.key}"
 
 class TreeFactory(ABC):
     """To create tree objects and perform tree operations"""
@@ -21,22 +22,26 @@ class TreeFactory(ABC):
         self.tree_network_size = len(self.tree_network)
 
     @abstractmethod
-    def insert(self, key, value):
+    def insert(self, key: int, value: int):
+        """Insert new node and ensure properties are maintained"""
         pass
 
-    def rebalance(self, new_node):
+    def rebalance(self, new_node: int):
+        """Rebalance to ensure properties are maintained"""
         pass
 
-    def search(self, key):
+    def search(self, key: int):
         """Search for a node with the given key in the Red-Black Tree."""
+
         return self._search_recursive(self.root, key)
 
-    def _search_recursive(self, node, key):
+    def _search_recursive(self, node: int, key: int):
         """Helper function that recursively searches for the node with the given key."""
+
         # print(f"Seats: {self.tree_network}")
         # print(f"Node {node} with key {node.key}")
         if node is None or node.key is None:
-            return f"User has no prior booking"  # Key not found
+            return False  # Key not found
         
         if key == node.key:
             return node  # Key found, return the node
@@ -47,8 +52,9 @@ class TreeFactory(ABC):
         else:
             return self._search_recursive(node.right, key)
     
-    def delete(self, key):
+    def delete(self, key: int):
         """Delete a node with the specified key from the Red-Black Tree."""
+
         node_to_delete = self.search(key)
 
         # If the node doesn't exist or the tree is empty, return.
@@ -92,9 +98,9 @@ class TreeFactory(ABC):
         if node_to_delete in self.tree_network:
             self.tree_network.remove(node_to_delete)
 
-
-    def _transplant(self, u, v):
+    def _transplant(self, u: int, v: int):
         """Replace the subtree rooted at u with the subtree rooted at v."""
+
         if u.parent == self.nil:
             self.root = v
         elif u == u.parent.left:
@@ -103,14 +109,16 @@ class TreeFactory(ABC):
             u.parent.right = v
         v.parent = u.parent
 
-    def _minimum(self, node):
+    def _minimum(self, node: int):
         """Find the minimum node in a subtree rooted at node."""
+
         while node.left != self.nil:
             node = node.left
         return node
 
-    def _delete_fix(self, x):
+    def _delete_fix(self, x: int):
         """Fix the Red-Black Tree properties after deletion."""
+
         while x != self.root and x.color == "black":
             if x == x.parent.left:
                 sibling = x.parent.right
@@ -156,16 +164,15 @@ class TreeFactory(ABC):
                     x = self.root
         x.color = "black"
 
-
 class RedBlackTree(TreeFactory):
-    """A Red-Black Tree implementation"""
+    """Inherit functions from the HeapFactory class. Use this class to implement a Red-Black Tree"""
 
     def __init__(self):
         super().__init__()
         self.nil = Node(color="black")  # Sentinel NIL node
         self.root = self.nil  # Initially, the tree root is the NIL node
 
-    def insert(self, key, value):
+    def insert(self, key: int, value: int):
         """Insert a node with the specified key and value into the Red-Black Tree"""
 
         # Create a new red node with both key and value
@@ -203,8 +210,10 @@ class RedBlackTree(TreeFactory):
         # Fix the Red-Black Tree properties after insertion
         self.rebalance(new_node)
 
-    def rebalance(self, new_node):
+    def rebalance(self, new_node: int):
+        """Rebalance to ensure properties are maintained"""
         # While the parent of the node is red, violations exist
+
         while new_node.parent.color == "red":
             # Case when the parent is the left child of the grandparent
             if new_node.parent == new_node.parent.parent.left:
@@ -253,8 +262,9 @@ class RedBlackTree(TreeFactory):
         # Ensure the root is always black
         self.root.color = "black"
     
-    def left_rotate(self, current_node):
-        """Perform a left rotation on the given node in a Red-Black Tree."""
+    def left_rotate(self, current_node: int):
+        """Perform a left rotation on the given node in a Red-Black Tree to maintain properties."""
+
         parent_node = current_node.right
         current_node.right = parent_node.left
         if parent_node.left != self.nil:
@@ -271,8 +281,9 @@ class RedBlackTree(TreeFactory):
         parent_node.left = current_node
         current_node.parent = parent_node
 
-    def right_rotate(self, parent_node):
-        """Perform a right rotation on the given node in a Red-Black Tree."""
+    def right_rotate(self, parent_node: int):
+        """Perform a right rotation on the given node in a Red-Black Tree to maintain properties."""
+
         current_node = parent_node.left
         parent_node.left = current_node.right
         if current_node.right != self.nil:

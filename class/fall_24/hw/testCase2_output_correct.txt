@@ -30,6 +30,7 @@ Total Seats Available : 0, Waitlist : 1
 User 10 is added to the waiting list
 User 11 is added to the waiting list
 Reservations of the Users in the range [1, 4] are released
-User 9 reserved seat 1User 10 reserved seat 2
+User 9 reserved seat 1
+User 10 reserved seat 2
 User 11 reserved seat 4
 Program Terminated!!
