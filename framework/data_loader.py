@@ -1,3 +1,4 @@
+import numpy as np
 import networkx as nx
 import graph_tool.all as gt
 
@@ -12,12 +13,58 @@ class LoadNetworkFactory(ABC):
     def dict_to_graph(self):
         pass
 
+    def generate_rand_graph(self):
+        pass
+
+    def generate_rand_dict(self, N: int):
+        """Generate a random undirected graph"""
+        g = {}
+        domain = list(range(1, N))
+        low, high = domain[0], domain[-1] + 1  # Adjust high for inclusivity
+
+        # Initialize an empty list for each key
+        for key in domain:
+            g[key] = []
+
+        for key in domain:
+            print(f"Processing Key: {key}")
+            
+            # Create a filtered domain excluding the current key
+            filtered_domain_list = []
+            for value in domain:
+                if value != key:
+                    filtered_domain_list.append(value)
+
+            # Randomize the length of values for the current key, ensuring it's not larger than filtered_domain_list
+            max_length = len(filtered_domain_list)
+            rand_value_len = np.random.randint(low=1, high=max_length + 1)  # `+1` to include max_length as a possibility
+
+            # Generate a list of unique random values
+            rand_values = np.random.choice(filtered_domain_list, size=rand_value_len, replace=False).tolist()
+            
+            # Add to the graph and ensure undirected property
+            for value in rand_values:
+                if value not in g[key]:
+                    g[key].append(value)
+                if key not in g[value]:  # Ensure mutual connection
+                    g[value].append(key)
+
+            print(g)
+            print()
+
+        return g
+
 class LoadNetworkX(LoadNetworkFactory):
     """A class that inherits from LoadNetworkFactory with the utilization of NetworkX"""
     
-    def dict_to_graph(self, network):
+    def dict_to_graph(self, network: dict):
         return nx.to_networkx_graph(network)
     
+
+
+
+
+
 class LoadPyG(LoadNetworkFactory):
     """A class that inherits from LoadNetworkFactory with the utilization of PyG"""
 
