@@ -18,7 +18,11 @@ class VisualizeNetworkX(VisualizeNetworkFactory):
     """A class that inherits from VisualizeNetworkFactory with the utilization of NetworkX"""
 
     def visualize(self, network: nx.Graph):
-        return nx.draw_networkx(network)
+        """Visualizes a NetworkX graph with or without arrows based on its type (directed/undirected)."""
+        if nx.is_directed(network):
+            nx.draw_networkx(network, arrows=True, node_size=500, node_color="lightblue")
+        else:
+            nx.draw_networkx(network, arrows=False, node_size=500, node_color="lightblue")
     
 class VisualizeGraphTool(VisualizeNetworkFactory):
     """A class that inherits from VisualizeNetworkFactory with the utilization of graph-tool"""
@@ -41,6 +45,7 @@ class VisualizeGraphTool(VisualizeNetworkFactory):
             File path to save the visualization; if None, it displays the graph interactively.
 
         """
+        # Handle layout
         pos = gtd.sfdp_layout(network)  # Default layout for graph-tool
 
         # Use actual labels if they exist and integer_node_ids is False
@@ -49,6 +54,12 @@ class VisualizeGraphTool(VisualizeNetworkFactory):
         else:
             label_prop = network.vertex_index  # Fallback to vertex indices
 
+        # Remove duplicate edges for bidirectional relationships in undirected graphs
+        if not network.is_directed():
+            network.set_edge_filter(None)  # Remove any existing filters
+            network.set_edge_filter(network.new_edge_property("bool", val=True))
+
+        # Visualize the graph
         if output_file:
             gtd.graph_draw(network, pos, vertex_text=label_prop, output=output_file)
         else:

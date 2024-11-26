@@ -2,6 +2,7 @@ import numpy as np
 import networkx as nx
 import graph_tool.all as gt
 
+
 from abc import ABC, abstractmethod
 
 class LoadNetworkFactory(ABC):
@@ -16,55 +17,83 @@ class LoadNetworkFactory(ABC):
     def generate_rand_graph(self):
         pass
 
-    def generate_rand_dict(self, N: int):
-        """Generate a random undirected graph"""
-        g = {}
-        domain = list(range(1, N))
-        low, high = domain[0], domain[-1] + 1  # Adjust high for inclusivity
+    def generate_rand_dict(self, N: int, directed: bool):
+        """Generate a random dictionary representing a graph.
 
-        # Initialize an empty list for each key
+        Parameters:
+        -----------
+        N: `int`
+            Number of nodes in the graph.
+        
+        directed: 'bool'
+            If True, generates a directed graph. 
+            If False, generates an undirected graph.
+
+        Returns:
+        --------
+        rand_dict: `dict`
+            A dictionary where each key is a node and its value is a list of connected nodes.
+        """
+
+        rand_dict = {}
+        domain = list(range(1, N + 1))  # Node labels range from 1 to N (inclusive).
+
+        # Initialize an empty adjacency list for each node.
         for key in domain:
-            g[key] = []
+            rand_dict[key] = []
 
         for key in domain:
-            print(f"Processing Key: {key}")
-            
-            # Create a filtered domain excluding the current key
+            # Exclude self-loops (a node cannot be connected to itself).
             filtered_domain_list = []
             for value in domain:
                 if value != key:
                     filtered_domain_list.append(value)
 
-            # Randomize the length of values for the current key, ensuring it's not larger than filtered_domain_list
+            # Randomize the number of neighbors for the current node.
             max_length = len(filtered_domain_list)
-            rand_value_len = np.random.randint(low=1, high=max_length + 1)  # `+1` to include max_length as a possibility
+            rand_value_len = np.random.randint(low=1, high=max_length + 1)  # `+1` for inclusiveness
 
-            # Generate a list of unique random values
+            # Generate unique neighbors for the current node.
             rand_values = np.random.choice(filtered_domain_list, size=rand_value_len, replace=False).tolist()
-            
-            # Add to the graph and ensure undirected property
-            for value in rand_values:
-                if value not in g[key]:
-                    g[key].append(value)
-                if key not in g[value]:  # Ensure mutual connection
-                    g[value].append(key)
 
-            print(g)
-            print()
+            # Handle undirected and directed cases.
+            if not directed:  # Undirected graph.
+                for rand_value in rand_values:
+                    if rand_value not in rand_dict[key]:  # Avoid duplicate nodes for same key, thus each value in key is unique
+                        rand_dict[key].append(rand_value)
+                    if key not in rand_dict[rand_value]:  # Ensure mutual connection.
+                        rand_dict[rand_value].append(key)
+            elif directed:  # Directed graph.
+                for rand_value in rand_values:
+                    if rand_value not in rand_dict[key]:  # Add edge from key to rand_value.
+                        rand_dict[key].append(rand_value)
+            else:
+                print(f"Invalid value for directed: {directed}")
 
-        return g
+        return rand_dict
 
+    # def select_file(self):
+    #     """Option if no file is provided, prompt user to select a file"""
+    #     file_path = easygui.fileopenbox()
+    #     print(f"Selected file: {file_path}")
+    #     return file_path
+    
 class LoadNetworkX(LoadNetworkFactory):
     """A class that inherits from LoadNetworkFactory with the utilization of NetworkX"""
     
     def dict_to_graph(self, network: dict):
         return nx.to_networkx_graph(network)
     
+    def load_edge_file(self, file: str = None):
+        if file:
+            G = nx.read_edgelist(file)
+        else:
+            pass
+            # file_to_load = self.select_file()
+            # G = nx.read_edgelist(file_to_load)
 
-
-
-
-
+        return G
+    
 class LoadPyG(LoadNetworkFactory):
     """A class that inherits from LoadNetworkFactory with the utilization of PyG"""
 
