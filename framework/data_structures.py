@@ -63,5 +63,6 @@ class DictionaryComputation(DataStructureComputationsFactory):
             n_k = len(nodes) # Number of nodes in degree
             n = len(network) # All nodes in network
             p_ks[degree] = n_k / n # At key degree, set the value to the prob
-        
+
+            print(f"{n_k} nodes with degree {degree} and a total of {n} nodes in network ---> {n_k} / {n} = {p_ks[degree]}")        
         return p_ks
