@@ -41,3 +41,27 @@ class DictionaryComputation(DataStructureComputationsFactory):
         total_links = self.total_links(network) * 2 # Count each link 2x
         return total_links / self.total_nodes(network)
     
+    def same_degree_nodes(self, network: dict) -> dict:
+        """Group the nodes with same degrees together"""
+
+        n_ks = {} # Create empty dict to store key degree : values [associated nodes in list]
+        node_deg = self.get_node_degrees(network)
+        for node, degree in node_deg.items():
+            # print(f"{node} has {degree} degrees")
+            if degree not in n_ks:
+                n_ks[degree] = []
+            n_ks[degree].append(node) # `n_ks[degree]` is a list we append all corresponding nodes to
+
+        return n_ks
+    
+    def degree_distribution(self, network: dict):
+        """Get ratio of degree with specific nodes to all nodes"""
+        
+        p_ks = {} # Create empty dict to store key degree : value distribution %
+        degrees = self.same_degree_nodes(network)
+        for degree, nodes in degrees.items():
+            n_k = len(nodes) # Number of nodes in degree
+            n = len(network) # All nodes in network
+            p_ks[degree] = n_k / n # At key degree, set the value to the prob
+        
+        return p_ks
