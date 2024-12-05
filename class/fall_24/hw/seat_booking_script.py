@@ -281,6 +281,15 @@ class SeatBooking():
                 rbt_node = self.rbt.search(user_id)
                 # print(node)
 
+
+                # remove all in waiting list first, then update
+                # TA: Chittireddy, Chethan Reddy
+                # Let us say we call ReleaseSeats(7,9). Your implementation only works( sometimes) if 1 or more seats have a prior successful reservation and is in the rbt.
+ 
+                # If we have a scenario where all the users 7, 8, 9 are in waiting list, your program would not work as intended and remove none of the users from the waiting list.
+                
+                # Let’s assume one of the users for example 7 is already assigned a seat and 8, 9 are in the waitlist. There is no guarantee that the chaining of removal would happen and at the end we remove both 8 and 9 from the system(rbt and waitlist), because there could be two other users lets say 10, 11 who had a priority than users 8, 9 and are in waiting list.
+
                 if isinstance(rbt_node, tree_operations.Node):
                     # print(f"Node to delete from RBT: {node.key} : {node.value}")
                     # print(f"{self.rbt.tree_network}")
