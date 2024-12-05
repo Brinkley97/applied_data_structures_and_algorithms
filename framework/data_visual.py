@@ -1,6 +1,7 @@
 import networkx as nx
 import graph_tool.all as gt
 import graph_tool.draw as gtd
+import matplotlib.pyplot as plt
 
 from abc import ABC, abstractmethod
 from data_loader import LoadNetworkX
@@ -13,9 +14,11 @@ class VisualizeNetworkFactory(ABC):
 
     def dict_to_graph(self):
         pass
+
     
 class VisualizeNetworkX(VisualizeNetworkFactory):
     """A class that inherits from VisualizeNetworkFactory with the utilization of NetworkX"""
+
 
     def visualize(self, network: nx.Graph):
         """Visualizes a NetworkX graph with or without arrows based on its type (directed/undirected)."""
@@ -24,6 +27,24 @@ class VisualizeNetworkX(VisualizeNetworkFactory):
         else:
             nx.draw_networkx(network, arrows=False, node_size=500, node_color="lightblue")
     
+    def draw_graph(self, network, pos, ax, title):
+        nx.draw(network, pos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
+        ax.set_title(title)
+
+    def visualize_graph_evolution(self, network: dict):
+        fig, axes = plt.subplots(1, len(network), figsize=(15, 5))
+        pos = None
+
+        for i, (time_step, edges) in enumerate(network.items()):
+            G = nx.Graph()
+            for node, neighbors in edges.items():
+                for neighbor in neighbors:
+                    G.add_edge(node, neighbor)
+            if pos is None:
+                pos = nx.spring_layout(G)  # Compute layout only once
+            self.draw_graph(G, pos, axes[i], f"Time Step {time_step}")
+
+        plt.show()
 class VisualizeGraphTool(VisualizeNetworkFactory):
     """A class that inherits from VisualizeNetworkFactory with the utilization of graph-tool"""
 

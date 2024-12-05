@@ -71,6 +71,35 @@ class LoadNetworkFactory(ABC):
                 print(f"Invalid value for directed: {directed}")
 
         return rand_dict
+    
+    def generate_dynamic_rand_dict(self, N: int, directed: bool, T: int):
+        """Generate a random dictionary representing a dynamic graph.
+
+        Parameters:
+        -----------
+        N: `int`
+            Number of nodes in the graph.
+        
+        directed: 'bool'
+            If True, generates a directed graph. 
+            If False, generates an undirected graph.
+        
+        T: `int`
+            Number of time stamps for graph.
+
+        Returns:
+        --------
+        dynamic_graph: `dict`
+            A dictionary where each key is a time stamp with value of key is a node mapped to a list of connected nodes.
+        """
+
+        dynamic_graph = {}
+
+        for t in range(T):
+            g_t = self.generate_rand_dict(N, directed)
+            dynamic_graph[t] = g_t
+        
+        return dynamic_graph
 
     # def select_file(self):
     #     """Option if no file is provided, prompt user to select a file"""
