@@ -15,6 +15,9 @@ class VisualizeNetworkFactory(ABC):
     def dict_to_graph(self):
         pass
 
+    def visualize_graph_evolution(self):
+        pass
+
     
 class VisualizeNetworkX(VisualizeNetworkFactory):
     """A class that inherits from VisualizeNetworkFactory with the utilization of NetworkX"""
@@ -27,11 +30,13 @@ class VisualizeNetworkX(VisualizeNetworkFactory):
         else:
             nx.draw_networkx(network, arrows=False, node_size=500, node_color="lightblue")
     
-    def draw_graph(self, network, pos, ax, title):
-        nx.draw(network, pos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
-        ax.set_title(title)
+    # def draw_graph(self,network, pos, ax, title):
+    #     nx.draw(network, pos, with_labels=True, ax=ax, node_color='lightblue', edge_color='gray')
+    #     ax.set_title(title)
 
     def visualize_graph_evolution(self, network: dict):
+        """Visualizes a NetworkX dynamic graph with or without arrows based on its type (directed/undirected)."""
+
         fig, axes = plt.subplots(1, len(network), figsize=(15, 5))
         pos = None
 
@@ -42,9 +47,12 @@ class VisualizeNetworkX(VisualizeNetworkFactory):
                     G.add_edge(node, neighbor)
             if pos is None:
                 pos = nx.spring_layout(G)  # Compute layout only once
-            self.draw_graph(G, pos, axes[i], f"Time Step {time_step}")
+            
+            nx.draw(G, pos, with_labels=True, ax=axes[i], node_color='lightblue', edge_color='gray')
+            axes[i].set_title(f"Time Step {time_step}")
 
         plt.show()
+
 class VisualizeGraphTool(VisualizeNetworkFactory):
     """A class that inherits from VisualizeNetworkFactory with the utilization of graph-tool"""
 
